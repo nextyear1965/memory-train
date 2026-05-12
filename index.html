@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>認知重塑訓練器 - 專業版</title>
+    <title>認知重塑訓練器 - 專業版 V3</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @keyframes pulse-red { 0%, 100% { background-color: #ef4444; } 50% { background-color: #f87171; } }
@@ -14,8 +14,7 @@
         .ending-wait { animation: pulse-blue 1s infinite; }
         .ending-beep { animation: pulse-yellow 0.5s infinite; }
         .final-repeat { animation: pulse-purple 0.2s infinite; }
-        
-        .mode-btn.active { @apply bg-indigo-600 border-indigo-400 text-white; }
+        .mode-btn.active { @apply bg-indigo-600 border-indigo-400 text-white shadow-inner; }
     </style>
 </head>
 <body class="bg-slate-900 text-white min-h-screen flex items-center justify-center p-4 transition-colors duration-500">
@@ -23,13 +22,11 @@
     <div class="max-w-md w-full bg-slate-800 rounded-2xl shadow-2xl p-6 border border-slate-700">
         <h1 class="text-xl font-bold text-center mb-4 text-blue-400">認知重塑訓練系統</h1>
         
-        <!-- 狀態與時間顯示 -->
         <div class="bg-slate-900 rounded-xl p-5 text-center border border-slate-700 mb-6">
             <div id="timer" class="text-5xl font-mono font-bold text-white mb-2">00.0</div>
             <div id="statusText" class="text-sm font-medium text-slate-500 h-5">準備開始</div>
         </div>
 
-        <!-- 模式切換選項 (夜間使用優化) -->
         <div class="mb-6">
             <label class="text-xs text-slate-400 uppercase tracking-widest block mb-2">運作模式設定</label>
             <div class="grid grid-cols-2 gap-2" id="modeSelector">
@@ -40,32 +37,31 @@
             </div>
         </div>
 
-        <!-- 控制按鈕 -->
         <div class="space-y-3">
             <button id="startBtn" class="w-full bg-indigo-600 hover:bg-indigo-500 active:scale-95 transition-all text-white font-bold py-4 rounded-xl shadow-lg">
                 啟動訓練 (60-80s)
             </button>
-            <button id="showAnswerBtn" disabled class="w-full bg-slate-700 text-slate-500 cursor-not-allowed font-bold py-4 rounded-xl shadow-lg transition-all">
+            <button id="showAnswerBtn" disabled class="w-full bg-slate-700 text-slate-500 cursor-not-allowed font-bold py-4 rounded-xl shadow-lg transition-all border border-transparent">
                 公布答案 (驗證)
             </button>
         </div>
 
-        <!-- 數據紀錄區 -->
         <div class="mt-6 border-t border-slate-700 pt-4">
             <div class="flex justify-between items-center mb-2">
                 <span class="text-[10px] text-slate-500 font-mono" id="historyCount">COUNT: 0</span>
                 <span class="text-[10px] text-slate-500 font-mono">滑動窗口: N-2</span>
             </div>
             <div id="log" class="h-20 overflow-y-auto bg-slate-900/50 rounded-lg p-2 text-[10px] font-mono text-slate-500 border border-slate-700/50">
-                模式說明：<br>
-                - 僅震動模式適合夜間訓練不擾人。<br>
-                - 完全靜音模式僅依賴螢幕閃爍。
+                認知訓練提示：<br>
+                1. 專注於當下的連續音次數。<br>
+                2. 每當新音效出現，更新腦中的數列。<br>
+                3. 最後長鳴後，試著回憶「倒數第三次」。
             </div>
         </div>
     </div>
 
     <script>
-        let currentMode = 'both'; // both, sound, vibrate, visual
+        let currentMode = 'both';
         let audioCtx = null;
         let isRunning = false;
         let remainingTime = 0;
@@ -78,11 +74,12 @@
         const showAnswerBtn = document.getElementById('showAnswerBtn');
         const historyCounter = document.getElementById('historyCount');
 
-        // 切換模式函數
         function setMode(mode) {
-            if (isRunning) return; // 執行中不允許切換
+            if (isRunning) return;
             currentMode = mode;
-            document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active', 'bg-indigo-600', 'border-indigo-400'));
+            document.querySelectorAll('.mode-btn').forEach(btn => {
+                btn.classList.remove('active', 'bg-indigo-600', 'border-indigo-400');
+            });
             const activeBtn = document.getElementById(`mode-${mode}`);
             activeBtn.classList.add('active', 'bg-indigo-600', 'border-indigo-400');
         }
@@ -91,10 +88,8 @@
             if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         }
 
-        // 核心發號函數：根據模式決定聲音與震動
         function playSignal(duration = 200, frequency = 880) {
             return new Promise((resolve) => {
-                // 處理聲音
                 if (currentMode === 'both' || currentMode === 'sound') {
                     const oscillator = audioCtx.createOscillator();
                     const gainNode = audioCtx.createGain();
@@ -110,11 +105,9 @@
                     setTimeout(() => oscillator.stop(), duration);
                 }
 
-                // 處理震動 (需 Android 支援)
                 if ((currentMode === 'both' || currentMode === 'vibrate') && "vibrate" in navigator) {
                     navigator.vibrate(duration);
                 }
-
                 setTimeout(resolve, duration);
             });
         }
@@ -145,7 +138,7 @@
             isRunning = false;
             clearInterval(timerInterval);
             
-            statusText.textContent = '準備結束信號...';
+            statusText.textContent = '訓練結束，準備長鳴信號...';
             document.body.classList.add('ending-wait');
             await new Promise(r => setTimeout(r, 2000));
             document.body.classList.remove('ending-wait');
@@ -155,29 +148,48 @@
             await playSignal(3000, 660); 
             document.body.classList.remove('ending-beep');
 
-            statusText.textContent = '訓練結束，請回憶答案';
+            statusText.textContent = '請作答後按鈕驗證答案';
+            
+            // 啟用驗證按鈕
             showAnswerBtn.disabled = false;
+            showAnswerBtn.textContent = '公布答案 (回放倒數第3次)';
             showAnswerBtn.classList.remove('bg-slate-700', 'text-slate-500', 'cursor-not-allowed');
-            showAnswerBtn.classList.add('bg-purple-600', 'text-white');
+            showAnswerBtn.classList.add('bg-purple-600', 'text-white', 'border-purple-400');
             
             startBtn.disabled = false;
-            startBtn.textContent = '再次啟動訓練';
+            startBtn.textContent = '啟動新訓練';
             startBtn.classList.remove('opacity-50');
             timerDisplay.textContent = "00.0";
         }
 
+        // 修改後的按鈕回覆邏輯
         showAnswerBtn.addEventListener('click', async () => {
+            // 點擊後立即禁用，防止重疊點擊
             showAnswerBtn.disabled = true;
+            showAnswerBtn.textContent = '正在回放驗證中...';
+            showAnswerBtn.classList.add('opacity-50');
+            
             if (beepHistory.length >= 3) {
                 const repeatCount = beepHistory[beepHistory.length - 3];
-                statusText.textContent = `正確答案：${repeatCount} 聲`;
+                statusText.textContent = `答案回放：${repeatCount} 次`;
+                
                 for (let i = 0; i < repeatCount; i++) {
                     document.body.classList.add('final-repeat');
                     await playSignal(150, 880);
                     document.body.classList.remove('final-repeat');
                     if (i < repeatCount - 1) await new Promise(r => setTimeout(r, 120));
                 }
+                
+                statusText.textContent = '驗證結束，準備新一輪訓練';
+            } else {
+                statusText.textContent = '數據不足 3 次';
             }
+
+            // 重點：回放結束後，恢復灰階 Disabled 狀態
+            showAnswerBtn.disabled = true;
+            showAnswerBtn.textContent = '答案已公布';
+            showAnswerBtn.classList.remove('bg-purple-600', 'text-white', 'border-purple-400', 'opacity-50');
+            showAnswerBtn.classList.add('bg-slate-700', 'text-slate-500', 'cursor-not-allowed');
         });
 
         startBtn.addEventListener('click', () => {
@@ -188,10 +200,14 @@
             historyCounter.textContent = `COUNT: 0`;
             remainingTime = Math.floor(Math.random() * 21) + 60; 
             
+            // 重置公布按鈕狀態
             showAnswerBtn.disabled = true;
+            showAnswerBtn.textContent = '公布答案 (驗證)';
+            showAnswerBtn.classList.remove('bg-purple-600', 'text-white', 'border-purple-400');
             showAnswerBtn.classList.add('bg-slate-700', 'text-slate-500', 'cursor-not-allowed');
+            
             startBtn.disabled = true;
-            startBtn.textContent = '執行中...';
+            startBtn.textContent = '訓練執行中...';
             startBtn.classList.add('opacity-50');
             
             timerInterval = setInterval(() => {
