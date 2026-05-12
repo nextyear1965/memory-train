@@ -3,57 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>認知重塑訓練器 - 震動優化版</title>
+    <title>認知重塑訓練器</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @keyframes pulse-red { 0%, 100% { background-color: #ef4444; } 50% { background-color: #f87171; } }
         @keyframes pulse-yellow { 0%, 100% { background-color: #eab308; } 50% { background-color: #fde047; } }
         @keyframes pulse-blue { 0%, 100% { background-color: #3b82f6; } 50% { background-color: #60a5fa; } }
         @keyframes pulse-purple { 0%, 100% { background-color: #a855f7; } 50% { background-color: #c084fc; } }
-        .beeping { animation: pulse-red 0.2s infinite; }
-        .ending-wait { animation: pulse-blue 1s infinite; }
-        .ending-beep { animation: pulse-yellow 0.5s infinite; }
-        .final-repeat { animation: pulse-purple 0.2s infinite; }
-        .mode-btn.active { @apply bg-indigo-600 border-indigo-400 text-white shadow-inner; }
+        .beeping { animation: pulse-red 0.2s infinite !important; }
+        .ending-wait { animation: pulse-blue 1s infinite !important; }
+        .ending-beep { animation: pulse-yellow 0.5s infinite !important; }
+        .final-repeat { animation: pulse-purple 0.2s infinite !important; }
+        .mode-btn.active { background-color: #4f46e5 !important; border-color: #818cf8 !important; color: white !important; }
     </style>
 </head>
-<body class="bg-slate-900 text-white min-h-screen flex items-center justify-center p-4 transition-colors duration-500">
+<body class="bg-slate-900 text-white min-h-screen flex items-center justify-center p-4">
 
     <div class="max-w-md w-full bg-slate-800 rounded-2xl shadow-2xl p-6 border border-slate-700">
         <h1 class="text-xl font-bold text-center mb-4 text-blue-400">認知重塑訓練系統</h1>
         
         <div class="bg-slate-900 rounded-xl p-5 text-center border border-slate-700 mb-6">
             <div id="timer" class="text-5xl font-mono font-bold text-white mb-2">00.0</div>
-            <div id="statusText" class="text-sm font-medium text-slate-500 h-5 text-center">準備就緒</div>
+            <div id="statusText" class="text-sm font-medium text-slate-500 h-5">準備就緒</div>
         </div>
 
-        <div class="mb-6">
-            <label class="text-xs text-slate-400 uppercase tracking-widest block mb-2 text-center">運作模式設定</label>
-            <div class="grid grid-cols-2 gap-2" id="modeSelector">
-                <button onclick="setMode('both')" id="mode-both" class="mode-btn active bg-slate-700 border border-slate-600 py-2 rounded-lg text-xs transition-all">聲震同步</button>
-                <button onclick="setMode('sound')" id="mode-sound" class="mode-btn bg-slate-700 border border-slate-600 py-2 rounded-lg text-xs transition-all">僅有聲音</button>
-                <button onclick="setMode('vibrate')" id="mode-vibrate" class="mode-btn bg-slate-700 border border-slate-600 py-2 rounded-lg text-xs transition-all">僅有震動</button>
-                <button onclick="setMode('visual')" id="mode-visual" class="mode-btn bg-slate-700 border border-slate-600 py-2 rounded-lg text-xs transition-all">完全靜音</button>
+        <div class="mb-6 text-center">
+            <label class="text-xs text-slate-400 uppercase tracking-widest block mb-2">運作模式設定</label>
+            <div class="grid grid-cols-2 gap-2">
+                <button id="btn-both" class="mode-btn active bg-slate-700 border border-slate-600 py-2 rounded-lg text-xs">聲震同步</button>
+                <button id="btn-sound" class="mode-btn bg-slate-700 border border-slate-600 py-2 rounded-lg text-xs">僅有聲音</button>
+                <button id="btn-vibrate" class="mode-btn bg-slate-700 border border-slate-600 py-2 rounded-lg text-xs">僅有震動</button>
+                <button id="btn-visual" class="mode-btn bg-slate-700 border border-slate-600 py-2 rounded-lg text-xs">完全靜音</button>
             </div>
         </div>
 
-        <div class="space-y-3 text-center">
-            <button id="startBtn" class="w-full bg-indigo-600 hover:bg-indigo-500 active:scale-95 transition-all text-white font-bold py-4 rounded-xl shadow-lg">
-                啟動訓練 (60-80s)
-            </button>
-            <button id="showAnswerBtn" disabled class="w-full bg-slate-700 text-slate-500 cursor-not-allowed font-bold py-4 rounded-xl shadow-lg transition-all border border-transparent">
-                公布答案 (驗證)
-            </button>
+        <div class="space-y-3">
+            <button id="startBtn" class="w-full bg-indigo-600 hover:bg-indigo-500 font-bold py-4 rounded-xl shadow-lg transition-all">啟動訓練 (60-80s)</button>
+            <button id="showAnswerBtn" disabled class="w-full bg-slate-700 text-slate-500 cursor-not-allowed font-bold py-4 rounded-xl shadow-lg border border-transparent">公布答案 (驗證)</button>
         </div>
 
-        <div class="mt-6 border-t border-slate-700 pt-4">
-            <div class="flex justify-between items-center mb-2 px-1">
-                <span class="text-[10px] text-slate-500 font-mono" id="historyCount">COUNT: 0</span>
-                <span class="text-[10px] text-slate-500 font-mono italic">震動顆粒感優化版</span>
-            </div>
-            <div id="log" class="h-20 overflow-y-auto bg-slate-900/50 rounded-lg p-2 text-[10px] font-mono text-slate-500 border border-slate-700/50">
-                更新說明：已延長震動間隔，確保計數清晰。
-            </div>
+        <div class="mt-6 border-t border-slate-700 pt-4 flex justify-between">
+            <span class="text-[10px] text-slate-500 font-mono" id="historyCount">COUNT: 0</span>
+            <span class="text-[10px] text-slate-500 font-mono">滑動窗口: N-2</span>
         </div>
     </div>
 
@@ -65,40 +56,53 @@
         let timerInterval = null;
         let beepHistory = [];
 
-        function setMode(mode) {
-            if (isRunning) return;
-            currentMode = mode;
-            document.querySelectorAll('.mode-btn').forEach(btn => {
-                btn.classList.remove('active', 'bg-indigo-600', 'border-indigo-400');
+        const timerDisplay = document.getElementById('timer');
+        const statusText = document.getElementById('statusText');
+        const startBtn = document.getElementById('startBtn');
+        const showAnswerBtn = document.getElementById('showAnswerBtn');
+        const historyCounter = document.getElementById('historyCount');
+
+        // 模式切換
+        const modeBtns = {
+            both: document.getElementById('btn-both'),
+            sound: document.getElementById('btn-sound'),
+            vibrate: document.getElementById('btn-vibrate'),
+            visual: document.getElementById('btn-visual')
+        };
+
+        Object.keys(modeBtns).forEach(mode => {
+            modeBtns[mode].addEventListener('click', () => {
+                if (isRunning) return;
+                currentMode = mode;
+                Object.values(modeBtns).forEach(b => b.classList.remove('active'));
+                modeBtns[mode].classList.add('active');
             });
-            const activeBtn = document.getElementById(`mode-${mode}`);
-            activeBtn.classList.add('active', 'bg-indigo-600', 'border-indigo-400');
-        }
+        });
 
-        function initAudio() {
-            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        }
-
-        function playSignal(duration = 200, frequency = 880) {
+        // 核心發聲函數 - 加上 Try-Catch 防止報錯阻斷
+        function playSignal(duration, frequency) {
             return new Promise((resolve) => {
-                if (currentMode === 'both' || currentMode === 'sound') {
-                    const oscillator = audioCtx.createOscillator();
-                    const gainNode = audioCtx.createGain();
-                    oscillator.type = 'sine';
-                    oscillator.frequency.setValueAtTime(frequency, audioCtx.currentTime);
-                    gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
-                    gainNode.gain.linearRampToValueAtTime(0.4, audioCtx.currentTime + 0.05);
-                    gainNode.gain.linearRampToValueAtTime(0.4, audioCtx.currentTime + (duration / 1000) - 0.05);
-                    gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + duration / 1000);
-                    oscillator.connect(gainNode);
-                    gainNode.connect(audioCtx.destination);
-                    oscillator.start();
-                    setTimeout(() => oscillator.stop(), duration);
-                }
-
-                if ((currentMode === 'both' || currentMode === 'vibrate') && "vibrate" in navigator) {
-                    navigator.vibrate(duration);
-                }
+                try {
+                    // 1. 聲音處理
+                    if ((currentMode === 'both' || currentMode === 'sound') && audioCtx) {
+                        const oscillator = audioCtx.createOscillator();
+                        const gainNode = audioCtx.createGain();
+                        oscillator.type = 'sine';
+                        oscillator.frequency.setValueAtTime(frequency, audioCtx.currentTime);
+                        gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+                        gainNode.gain.linearRampToValueAtTime(0.4, audioCtx.currentTime + 0.02);
+                        gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + duration / 1000);
+                        oscillator.connect(gainNode);
+                        gainNode.connect(audioCtx.destination);
+                        oscillator.start();
+                        oscillator.stop(audioCtx.currentTime + duration / 1000);
+                    }
+                    // 2. 震動處理
+                    if ((currentMode === 'both' || currentMode === 'vibrate') && navigator.vibrate) {
+                        navigator.vibrate(duration);
+                    }
+                } catch (e) { console.error("Signal Error:", e); }
+                
                 setTimeout(resolve, duration);
             });
         }
@@ -108,15 +112,13 @@
                 const count = Math.floor(Math.random() * 4) + 1;
                 beepHistory.push(count);
                 historyCounter.textContent = `COUNT: ${beepHistory.length}`;
-                statusText.textContent = `第 ${beepHistory.length} 次刺激 (${count} 聲)`;
+                statusText.textContent = `處理中 (${count} 聲)...`;
                 
                 for (let i = 0; i < count; i++) {
                     if (!isRunning || remainingTime <= 0) break;
                     document.body.classList.add('beeping');
-                    // 縮短單聲時間為 100ms
-                    await playSignal(100, 880); 
+                    await playSignal(100, 880);
                     document.body.classList.remove('beeping');
-                    // 延長音與音間隔為 200ms 以分離震動感
                     if (i < count - 1) await new Promise(r => setTimeout(r, 200));
                 }
 
@@ -131,7 +133,7 @@
             isRunning = false;
             clearInterval(timerInterval);
             
-            statusText.textContent = '準備結束長鳴...';
+            statusText.textContent = '時間結束，等待信號...';
             document.body.classList.add('ending-wait');
             await new Promise(r => setTimeout(r, 2000));
             document.body.classList.remove('ending-wait');
@@ -141,28 +143,54 @@
             await playSignal(3000, 660); 
             document.body.classList.remove('ending-beep');
 
-            statusText.textContent = '訓練結束，請按按鈕驗證';
-            
+            statusText.textContent = '訓練結束，請驗證答案';
             showAnswerBtn.disabled = false;
-            showAnswerBtn.textContent = '公布答案 (驗證)';
             showAnswerBtn.classList.remove('bg-slate-700', 'text-slate-500', 'cursor-not-allowed');
-            showAnswerBtn.classList.add('bg-purple-600', 'text-white', 'border-purple-400');
+            showAnswerBtn.classList.add('bg-purple-600', 'text-white');
             
             startBtn.disabled = false;
             startBtn.textContent = '重啟訓練';
-            startBtn.classList.remove('opacity-50');
             timerDisplay.textContent = "00.0";
         }
 
+        startBtn.addEventListener('click', async () => {
+            if (isRunning) return;
+            
+            // 初始化音訊 (關鍵修復)
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                await audioCtx.resume();
+            }
+
+            isRunning = true;
+            beepHistory = [];
+            historyCounter.textContent = `COUNT: 0`;
+            remainingTime = Math.floor(Math.random() * 21) + 60; 
+            
+            showAnswerBtn.disabled = true;
+            showAnswerBtn.classList.add('bg-slate-700', 'text-slate-500', 'cursor-not-allowed');
+            startBtn.disabled = true;
+            startBtn.textContent = '執行中...';
+            
+            timerInterval = setInterval(() => {
+                remainingTime -= 0.1;
+                if (remainingTime <= 0) {
+                    remainingTime = 0;
+                    stopProgram();
+                } else {
+                    timerDisplay.textContent = remainingTime.toFixed(1);
+                }
+            }, 100);
+            runBeeperSequence();
+        });
+
         showAnswerBtn.addEventListener('click', async () => {
             showAnswerBtn.disabled = true;
-            showAnswerBtn.textContent = '正在回放驗證...';
-            showAnswerBtn.classList.add('opacity-50');
-            
             if (beepHistory.length >= 3) {
                 const repeatCount = beepHistory[beepHistory.length - 3];
-                statusText.textContent = `倒數第 3 次：${repeatCount} 次`;
-                
+                statusText.textContent = `答案：${repeatCount} 次`;
                 for (let i = 0; i < repeatCount; i++) {
                     document.body.classList.add('final-repeat');
                     await playSignal(100, 880);
@@ -170,41 +198,7 @@
                     if (i < repeatCount - 1) await new Promise(r => setTimeout(r, 200));
                 }
             }
-
-            showAnswerBtn.disabled = true;
             showAnswerBtn.textContent = '驗證完畢';
-            showAnswerBtn.classList.remove('bg-purple-600', 'text-white', 'border-purple-400', 'opacity-50');
-            showAnswerBtn.classList.add('bg-slate-700', 'text-slate-500', 'cursor-not-allowed');
-        });
-
-        startBtn.addEventListener('click', () => {
-            if (isRunning) return;
-            initAudio();
-            isRunning = true;
-            beepHistory = [];
-            historyCounter.textContent = `COUNT: 0`;
-            remainingTime = Math.floor(Math.random() * 21) + 60; 
-            
-            showAnswerBtn.disabled = true;
-            showAnswerBtn.textContent = '公布答案 (驗證)';
-            showAnswerBtn.classList.remove('bg-purple-600', 'text-white', 'border-purple-400');
-            showAnswerBtn.classList.add('bg-slate-700', 'text-slate-500', 'cursor-not-allowed');
-            
-            startBtn.disabled = true;
-            startBtn.textContent = '執行中...';
-            startBtn.classList.add('opacity-50');
-            
-            timerInterval = setInterval(() => {
-                remainingTime -= 0.1;
-                if (remainingTime <= 0) {
-                    remainingTime = 0;
-                    clearInterval(timerInterval);
-                    stopProgram();
-                } else {
-                    timerDisplay.textContent = remainingTime.toFixed(1);
-                }
-            }, 100);
-            runBeeperSequence();
         });
     </script>
 </body>
