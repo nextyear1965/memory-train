@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>認知重塑訓練器 - 專業版 V3</title>
+    <title>認知重塑訓練器 - 震動優化版</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @keyframes pulse-red { 0%, 100% { background-color: #ef4444; } 50% { background-color: #f87171; } }
@@ -24,11 +24,11 @@
         
         <div class="bg-slate-900 rounded-xl p-5 text-center border border-slate-700 mb-6">
             <div id="timer" class="text-5xl font-mono font-bold text-white mb-2">00.0</div>
-            <div id="statusText" class="text-sm font-medium text-slate-500 h-5">準備開始</div>
+            <div id="statusText" class="text-sm font-medium text-slate-500 h-5 text-center">準備就緒</div>
         </div>
 
         <div class="mb-6">
-            <label class="text-xs text-slate-400 uppercase tracking-widest block mb-2">運作模式設定</label>
+            <label class="text-xs text-slate-400 uppercase tracking-widest block mb-2 text-center">運作模式設定</label>
             <div class="grid grid-cols-2 gap-2" id="modeSelector">
                 <button onclick="setMode('both')" id="mode-both" class="mode-btn active bg-slate-700 border border-slate-600 py-2 rounded-lg text-xs transition-all">聲震同步</button>
                 <button onclick="setMode('sound')" id="mode-sound" class="mode-btn bg-slate-700 border border-slate-600 py-2 rounded-lg text-xs transition-all">僅有聲音</button>
@@ -37,7 +37,7 @@
             </div>
         </div>
 
-        <div class="space-y-3">
+        <div class="space-y-3 text-center">
             <button id="startBtn" class="w-full bg-indigo-600 hover:bg-indigo-500 active:scale-95 transition-all text-white font-bold py-4 rounded-xl shadow-lg">
                 啟動訓練 (60-80s)
             </button>
@@ -47,15 +47,12 @@
         </div>
 
         <div class="mt-6 border-t border-slate-700 pt-4">
-            <div class="flex justify-between items-center mb-2">
+            <div class="flex justify-between items-center mb-2 px-1">
                 <span class="text-[10px] text-slate-500 font-mono" id="historyCount">COUNT: 0</span>
-                <span class="text-[10px] text-slate-500 font-mono">滑動窗口: N-2</span>
+                <span class="text-[10px] text-slate-500 font-mono italic">震動顆粒感優化版</span>
             </div>
             <div id="log" class="h-20 overflow-y-auto bg-slate-900/50 rounded-lg p-2 text-[10px] font-mono text-slate-500 border border-slate-700/50">
-                認知訓練提示：<br>
-                1. 專注於當下的連續音次數。<br>
-                2. 每當新音效出現，更新腦中的數列。<br>
-                3. 最後長鳴後，試著回憶「倒數第三次」。
+                更新說明：已延長震動間隔，確保計數清晰。
             </div>
         </div>
     </div>
@@ -67,12 +64,6 @@
         let remainingTime = 0;
         let timerInterval = null;
         let beepHistory = [];
-
-        const timerDisplay = document.getElementById('timer');
-        const statusText = document.getElementById('statusText');
-        const startBtn = document.getElementById('startBtn');
-        const showAnswerBtn = document.getElementById('showAnswerBtn');
-        const historyCounter = document.getElementById('historyCount');
 
         function setMode(mode) {
             if (isRunning) return;
@@ -117,19 +108,21 @@
                 const count = Math.floor(Math.random() * 4) + 1;
                 beepHistory.push(count);
                 historyCounter.textContent = `COUNT: ${beepHistory.length}`;
-                statusText.textContent = `處理刺激中 (${count})...`;
+                statusText.textContent = `第 ${beepHistory.length} 次刺激 (${count} 聲)`;
                 
                 for (let i = 0; i < count; i++) {
                     if (!isRunning || remainingTime <= 0) break;
                     document.body.classList.add('beeping');
-                    await playSignal(150, 880);
+                    // 縮短單聲時間為 100ms
+                    await playSignal(100, 880); 
                     document.body.classList.remove('beeping');
-                    if (i < count - 1) await new Promise(r => setTimeout(r, 120));
+                    // 延長音與音間隔為 200ms 以分離震動感
+                    if (i < count - 1) await new Promise(r => setTimeout(r, 200));
                 }
 
                 if (!isRunning || remainingTime <= 0) break;
                 const nextInterval = Math.floor(Math.random() * 3001) + 2000; 
-                statusText.textContent = `保持當下覺察...`;
+                statusText.textContent = `保持覺察...`;
                 await new Promise(r => setTimeout(r, nextInterval));
             }
         }
@@ -138,7 +131,7 @@
             isRunning = false;
             clearInterval(timerInterval);
             
-            statusText.textContent = '訓練結束，準備長鳴信號...';
+            statusText.textContent = '準備結束長鳴...';
             document.body.classList.add('ending-wait');
             await new Promise(r => setTimeout(r, 2000));
             document.body.classList.remove('ending-wait');
@@ -148,46 +141,38 @@
             await playSignal(3000, 660); 
             document.body.classList.remove('ending-beep');
 
-            statusText.textContent = '請作答後按鈕驗證答案';
+            statusText.textContent = '訓練結束，請按按鈕驗證';
             
-            // 啟用驗證按鈕
             showAnswerBtn.disabled = false;
-            showAnswerBtn.textContent = '公布答案 (回放倒數第3次)';
+            showAnswerBtn.textContent = '公布答案 (驗證)';
             showAnswerBtn.classList.remove('bg-slate-700', 'text-slate-500', 'cursor-not-allowed');
             showAnswerBtn.classList.add('bg-purple-600', 'text-white', 'border-purple-400');
             
             startBtn.disabled = false;
-            startBtn.textContent = '啟動新訓練';
+            startBtn.textContent = '重啟訓練';
             startBtn.classList.remove('opacity-50');
             timerDisplay.textContent = "00.0";
         }
 
-        // 修改後的按鈕回覆邏輯
         showAnswerBtn.addEventListener('click', async () => {
-            // 點擊後立即禁用，防止重疊點擊
             showAnswerBtn.disabled = true;
-            showAnswerBtn.textContent = '正在回放驗證中...';
+            showAnswerBtn.textContent = '正在回放驗證...';
             showAnswerBtn.classList.add('opacity-50');
             
             if (beepHistory.length >= 3) {
                 const repeatCount = beepHistory[beepHistory.length - 3];
-                statusText.textContent = `答案回放：${repeatCount} 次`;
+                statusText.textContent = `倒數第 3 次：${repeatCount} 次`;
                 
                 for (let i = 0; i < repeatCount; i++) {
                     document.body.classList.add('final-repeat');
-                    await playSignal(150, 880);
+                    await playSignal(100, 880);
                     document.body.classList.remove('final-repeat');
-                    if (i < repeatCount - 1) await new Promise(r => setTimeout(r, 120));
+                    if (i < repeatCount - 1) await new Promise(r => setTimeout(r, 200));
                 }
-                
-                statusText.textContent = '驗證結束，準備新一輪訓練';
-            } else {
-                statusText.textContent = '數據不足 3 次';
             }
 
-            // 重點：回放結束後，恢復灰階 Disabled 狀態
             showAnswerBtn.disabled = true;
-            showAnswerBtn.textContent = '答案已公布';
+            showAnswerBtn.textContent = '驗證完畢';
             showAnswerBtn.classList.remove('bg-purple-600', 'text-white', 'border-purple-400', 'opacity-50');
             showAnswerBtn.classList.add('bg-slate-700', 'text-slate-500', 'cursor-not-allowed');
         });
@@ -200,14 +185,13 @@
             historyCounter.textContent = `COUNT: 0`;
             remainingTime = Math.floor(Math.random() * 21) + 60; 
             
-            // 重置公布按鈕狀態
             showAnswerBtn.disabled = true;
             showAnswerBtn.textContent = '公布答案 (驗證)';
             showAnswerBtn.classList.remove('bg-purple-600', 'text-white', 'border-purple-400');
             showAnswerBtn.classList.add('bg-slate-700', 'text-slate-500', 'cursor-not-allowed');
             
             startBtn.disabled = true;
-            startBtn.textContent = '訓練執行中...';
+            startBtn.textContent = '執行中...';
             startBtn.classList.add('opacity-50');
             
             timerInterval = setInterval(() => {
